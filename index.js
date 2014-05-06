@@ -3,7 +3,7 @@ var format = require('util').format;
 var sensorTag;
 function onDiscover(st) {
   sensorTag = st;
-  console.log( "got a sensortag: %s", sensorTag);
+  console.log('got a sensortag: %s', sensorTag);
   sensorTag.connect(onConnect);
 }
 function onConnect(err) {
