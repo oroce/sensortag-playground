@@ -16,10 +16,40 @@ function onConnect(err) {
 
 function onDiscoverServices() {
   console.log('discovered all characteristics for %s', sensorTag);
-  sensorTag.enableIrTemperature(onEnabledTemperature);
+  
+  enableServices();
+  //sensorTag.enableIrTemperature(onEnabledTemperature);
 }
-
-function onEnabledTemperature(err) {
+function enableServices() {
+  var services = [
+    'irTemperature',
+    'accelerometer',
+    'humidity'
+  ];
+  services.forEach(function(service) {
+    var method = service.charAt(0).toUpperCase() + service.slice(1);
+    var enable = 'enable' + method;
+    var fn = function() {
+      console.log('new value for %s', service, [].slice.call(arguments));
+    };
+    sensorTag[enable](function(err) {
+      if (err) {
+        return console.warn('Couldnt enable: %s', service, err);
+      }
+      var notify = 'notify' + method;
+      var change = service + 'Change';
+      
+      
+      sensorTag[notify](function() {
+        console.log('we\'ll be notified of %s', service);
+      });
+      console.log('listening to %s', change);
+      sensorTag.on(change, fn);
+    });
+    
+  });
+}
+/*function onEnabledTemperature(err) {
   if (err) {
     return console.error('cannot enable ir temperature', err);
   }
@@ -36,5 +66,5 @@ function onTemperatureChange(object, ambient) {
     (object).toFixed(2),
     (ambient).toFixed(2)
   ));
-}
+}*/
 SensorTag.discover(onDiscover);
